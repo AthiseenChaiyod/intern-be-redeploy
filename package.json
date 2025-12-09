@@ -6,10 +6,19 @@
   "license": "MPL-2.0",
   "type": "module",
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.5.7",
+    "@types/pg": "^8.15.6",
+    "drizzle-kit": "^1.0.0-beta.2-86f844e",
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "encore.dev": "^1.52.1"
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^1.0.0-beta.2-86f844e",
+    "encore.dev": "^1.52.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.16.3"
   }
 }

@@ -1,0 +1,169 @@
+import { api } from "encore.dev/api";
+import { eq } from "drizzle-orm";
+import { orm } from "../../../drizzle/database";
+import { user } from "../../../drizzle/schema";
+
+//* REUSABLE INTERFACE
+interface User {
+  id: string;
+
+  username: string;
+  password: string;
+  email: string;
+  role?: "user" | "admin";
+}
+
+interface UserCredentials {
+  username: string;
+  password: string;
+  email: string;
+  role?: "user" | "admin";
+}
+
+//* GET ALL USERS
+interface GetAllUsersResponse {
+  statusCode: number;
+  message: string;
+
+  data: any;
+}
+
+export const getAllUsers = api<void, GetAllUsersResponse>(
+  {
+    path: "/user",
+    method: "GET",
+    expose: false,
+    auth: false,
+    sensitive: false,
+  },
+
+  async () => {
+    const result = await orm.select().from(user);
+
+    return {
+      statusCode: 200,
+      message: "This is get all users",
+
+      data: result,
+    };
+  }
+);
+
+//* GET USER BY USERNAME
+interface GetUserByUsernameProps {
+  username: string;
+}
+interface GetUserByUsernameResponse {
+  statusCode: number;
+  message: string;
+
+  data: any;
+}
+
+export const getUserByUsername = api<
+  GetUserByUsernameProps,
+  GetUserByUsernameResponse
+>(
+  {
+    path: "/user/:username",
+    method: "GET",
+    expose: false,
+    auth: false,
+    sensitive: false,
+  },
+
+  async ({ username }) => {
+    const result = await orm
+      .select()
+      .from(user)
+      .where(eq(user.username, username))
+      .limit(1);
+
+    return {
+      statusCode: 200,
+      message: "This is get user by username",
+
+      data: result,
+    };
+  }
+);
+
+//* CREATE USER
+interface CreateUserProps {
+  credentials: UserCredentials;
+}
+interface CreateUserResponse {
+  statusCode: number;
+  message: string;
+
+  data: any;
+}
+
+export const createUser = api<CreateUserProps, CreateUserResponse>(
+  { path: "/user", method: "POST", expose: true, auth: false, sensitive: true },
+  async ({ credentials: { username, password, email, role } }) => {
+    await orm.insert(user).values({
+      username: username,
+      password: password,
+      email: email,
+      role: role ? role : "user",
+    });
+
+    const result = await getUserByUsername({ username: username });
+
+    return {
+      statusCode: 201,
+      message: "This is create user",
+
+      data: result.data,
+    };
+  }
+);
+
+//! PUT USER
+
+//! PATCH USER
+interface PatchUserProps {}
+interface PatchUserResponse {}
+
+export const patchUser = api<PatchUserProps, PatchUserResponse>(
+  {
+    path: "/user",
+    method: "PATCH",
+    expose: false,
+    auth: false,
+    sensitive: false,
+  },
+  async (props) => {
+    const response = await fetch("http://localhost:4000/");
+
+    return;
+  }
+);
+
+//! DELETE USER
+interface DeleteUserProps {
+  username: string;
+}
+interface DeleteUserResponse {
+  statusCode: number;
+  message: string;
+}
+
+export const deleteUser = api<DeleteUserProps, DeleteUserResponse>(
+  {
+    path: "/user",
+    method: "DELETE",
+    expose: false,
+    auth: false,
+    sensitive: false,
+  },
+  async ({ username }) => {
+    await orm.delete(user).where(eq(user.username, username));
+
+    return {
+      statusCode: 200,
+      message: `User: ${username} has been deleted`,
+    };
+  }
+);
