@@ -121,8 +121,6 @@ export const signOut = api<void, SignOutResponse>(
   }
 );
 
-//* CHECK STATUS
-
 interface AuthStatusProps {
   cookie?: Cookie<"cookie">;
 }

@@ -3,10 +3,8 @@ import { desc, eq } from "drizzle-orm";
 import { orm } from "../../../drizzle/database";
 import { comment, user } from "../../../drizzle/schema";
 
-//* REUSABLE INTERFACE
 interface Comment {}
 
-//* GET ALL POSTS
 interface GetAllCommentsResponse {
   statusCode: number;
   message: string;
@@ -34,7 +32,6 @@ export const getAllComments = api<void, GetAllCommentsResponse>(
   }
 );
 
-//* GET COMMENT BY POST ID
 interface GetCommentByPostIdProps {
   postId: string;
 }
@@ -80,7 +77,6 @@ export const getCommentByPostId = api<
   }
 );
 
-//* CREATE COMMENT
 interface CreateCommentProps {
   username: string;
   postId: string;
@@ -125,8 +121,6 @@ export const createComment = api<CreateCommentProps, CreateCommentResponse>(
   }
 );
 
-//* PATCH POST
-
 interface PatchCommentProps {}
 interface PatchCommentResponse {
   statusCode: number;
@@ -150,9 +144,9 @@ export const patchComment = api<PatchCommentProps, PatchCommentResponse>(
   }
 );
 
-//* DELETE POST
-
-interface DeleteCommentProps {}
+interface DeleteCommentProps {
+  id: string;
+}
 interface DeleteCommentResponse {
   statusCode: number;
   message: string;
@@ -160,16 +154,18 @@ interface DeleteCommentResponse {
 
 export const deleteComment = api<DeleteCommentProps, DeleteCommentResponse>(
   {
-    path: "/comment",
+    path: "/comment/:id",
     method: "DELETE",
     expose: false,
     auth: false,
     sensitive: false,
   },
 
-  async ({}) => {
+  async (props) => {
+    await orm.delete(comment).where(eq(comment.id, props.id));
+
     return {
-      statusCode: 200,
+      statusCode: 204,
       message: "This is delete comment",
     };
   }

@@ -2,8 +2,8 @@ import { api } from "encore.dev/api";
 import { eq } from "drizzle-orm";
 import { orm } from "../../../drizzle/database";
 import { user } from "../../../drizzle/schema";
+import { hash } from "bcrypt";
 
-//* REUSABLE INTERFACE
 interface User {
   id: string;
 
@@ -20,7 +20,6 @@ interface UserCredentials {
   role?: "user" | "admin";
 }
 
-//* GET ALL USERS
 interface GetAllUsersResponse {
   statusCode: number;
   message: string;
@@ -49,7 +48,6 @@ export const getAllUsers = api<void, GetAllUsersResponse>(
   }
 );
 
-//* GET USER BY USERNAME
 interface GetUserByUsernameProps {
   username: string;
 }
@@ -88,7 +86,6 @@ export const getUserByUsername = api<
   }
 );
 
-//* CREATE USER
 interface CreateUserProps {
   credentials: UserCredentials;
 }
@@ -120,11 +117,14 @@ export const createUser = api<CreateUserProps, CreateUserResponse>(
   }
 );
 
-//! PUT USER
-
-//! PATCH USER
-interface PatchUserProps {}
-interface PatchUserResponse {}
+interface PatchUserProps {
+  username: string;
+  password: string;
+}
+interface PatchUserResponse {
+  statusCode: number;
+  message: string;
+}
 
 export const patchUser = api<PatchUserProps, PatchUserResponse>(
   {
@@ -135,13 +135,21 @@ export const patchUser = api<PatchUserProps, PatchUserResponse>(
     sensitive: false,
   },
   async (props) => {
-    const response = await fetch("http://localhost:4000/");
+    const saltRound = 12;
+    const hashedPassword = await hash(props.password, saltRound);
 
-    return;
+    await orm
+      .update(user)
+      .set({ username: props.username, password: hashedPassword })
+      .where(eq(user.username, props.username));
+
+    return {
+      statusCode: 204,
+      message: "User has been updated",
+    };
   }
 );
 
-//! DELETE USER
 interface DeleteUserProps {
   username: string;
 }

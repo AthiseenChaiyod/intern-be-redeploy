@@ -4,11 +4,7 @@ import { eq } from "drizzle-orm";
 import { post, user } from "../../../drizzle/schema";
 import { orm } from "../../../drizzle/database";
 
-//* REUSABLE INTERFACE
-
 interface Post {}
-
-//* GET ALL POSTS
 
 interface GetAllPostsResponse {
   statusCode: number;
@@ -48,8 +44,6 @@ export const getAllPosts = api<void, GetAllPostsResponse>(
     };
   }
 );
-
-//* GET POST(S) BY "USER ID"
 
 interface GetPostByUserIdProps {
   userId: string;
@@ -97,7 +91,6 @@ export const getPostByUserId = api<
   }
 );
 
-//* GET POST BY "POST ID"
 interface GetPostByPostIdProps {
   postId: string;
 }
@@ -146,7 +139,6 @@ export const getPostByPostId = api<
   }
 );
 
-//* CREATE POST
 interface CreatePostProps {
   cookie: Cookie<"cookie">;
 
@@ -193,7 +185,6 @@ export const createPost = api<CreatePostProps, CreatePostResponse>(
   }
 );
 
-//* PATCH POST
 interface PatchPostProps {
   postId: string;
   title: string;
@@ -226,7 +217,6 @@ export const patchPost = api<PatchPostProps, PatchPostResponse>(
   }
 );
 
-//* DELETE POST
 interface DeletePostProps {
   postId: string;
 }
